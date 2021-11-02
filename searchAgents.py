@@ -113,7 +113,7 @@ class SearchAgent(Agent):
         starttime = time.time()
         problem = self.searchType(state) # Makes a new search problem
         self.actions  = self.searchFunction(problem) # Find a path
-        totalCost = problem.getCostOfActionSequence(self.actions)
+        totalCost = problem.getCostOfActionSequence(self.actions) #.getCostbOfActionSequence(self.actions)
         print('Path found with total cost of %d in %.1f seconds' % (totalCost, time.time() - starttime))
         if '_expanded' in dir(problem): print('Search nodes expanded: %d' % problem._expanded)
 
@@ -132,6 +132,7 @@ class SearchAgent(Agent):
             return self.actions[i]
         else:
             return Directions.STOP
+
 
 class PositionSearchProblem(search.SearchProblem):
     """
@@ -308,6 +309,8 @@ class CornersProblem(search.SearchProblem):
         # Please add any code here which you would like to use
         # in initializing the problem
         "*** YOUR CODE HERE ***"
+        self.startState = (self.startingPosition, [])  # the position and eaten
+
 
     def getStartState(self):
         """
@@ -315,14 +318,16 @@ class CornersProblem(search.SearchProblem):
         space)
         """
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        # util.raiseNotDefined()
+        return self.startState
 
     def isGoalState(self, state):
         """
         Returns whether this search state is a goal state of the problem.
         """
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        # util.raiseNotDefined()
+        return len(state[1]) == 4  # eat out for 4
 
     def expand(self, state):
         """
@@ -340,6 +345,20 @@ class CornersProblem(search.SearchProblem):
             # Add a child state to the child list if the action is legal
             # You should call getActions, getActionCost, and getNextState.
             "*** YOUR CODE HERE ***"
+            x,y = state[0]
+            visited = state[1]
+            dx, dy = Actions.directionToVector(action)
+            nextx, nexty = int(x + dx), int(y + dy)
+            hitsWall = self.walls[nextx][nexty]
+            # 只要下一步没有撞到墙，就说明可以走，将下一步的信息存储起来
+            if not hitsWall:                         
+                nextPos = (nextx, nexty)
+                stateVisited = list(visited)
+                if nextPos in self.corners:
+                    if not nextPos in stateVisited:
+                        stateVisited.append(nextPos)
+                successor = ((nextPos, stateVisited), action, 1)
+                successors.append(successor)
 
         self._expanded += 1 # DO NOT CHANGE
         return children
