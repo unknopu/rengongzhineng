@@ -236,8 +236,13 @@ def nullHeuristic(state, problem=None):
 def aStarSearch(problem, heuristic=nullHeuristic):
     """Search the node that has the lowest combined cost and heuristic first."""
     "*** YOUR CODE HERE ***"
-    queue = util.PriorityQueue()
-    return generalSearch(problem, queue, True, heuristic)
+    # queue = util.PriorityQueue()
+    # return generalSearch(problem, queue, True, heuristic)
+
+    frontier = util.PriorityQueue()
+    frontier.push(problem.getStartState(), 0)
+    currRoad = util.PriorityQueue()
+    return generalSearch(problem, frontier, currRoad)
 
 def costFunction(item) :
     return item[2]
@@ -259,27 +264,19 @@ def nullHeuristic(state, problem=None):
     """
     return 0
 
-def aStarSearch(problem, heuristic=nullHeuristic):
-    """Search the node that has the lowest combined cost and heuristic first."""
-    "*** YOUR CODE HERE ***"
-
-    frontier = util.PriorityQueue()
-    frontier.push(problem.getStartState(), 0)
-    currRoad = util.PriorityQueue()
-    return generalSearch(problem, frontier, currRoad)
-
-
 
 def generalSearch(problem, openTable, currRoad, heuristic=nullHeuristic):
     fringe, currRoad = openTable, currRoad  # fringe indicate that states to be fringe
+    flag = type(fringe)==util.PriorityQueue # swither for not dfs,bfs
+    
     visited = []                            
     path=[]                                 # the final road to goal
     currState = fringe.pop()
-    flag = type(fringe)==util.PriorityQueue         # swither for not dfs,bfs
     # print("open table type :", flag)
     while not problem.isGoalState(currState):
         if currState not in visited:
-            visited.append(currState)    
+            visited.append(currState)
+            
             successors = problem.getSuccessors(currState)
             for child, action, cost in successors:
                 tmp = path+[action]
@@ -296,7 +293,7 @@ def generalSearch(problem, openTable, currRoad, heuristic=nullHeuristic):
     return path     
 
 # Abbreviations
+ucs = uniformCostSearch
 bfs = breadthFirstSearch
 dfs = depthFirstSearch
-ucs = uniformCostSearch
 astar = aStarSearch
