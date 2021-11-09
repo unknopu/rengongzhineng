@@ -129,6 +129,7 @@ def breadthFirstSearch(problem):
     return generalSearch(problem, frontier, currRoad)
 
 
+
 def nullHeuristic(state, problem=None):
     """
     A heuristic function estimates the cost from the current state to the nearest
@@ -139,32 +140,11 @@ def nullHeuristic(state, problem=None):
 def uniformCostSearch(problem):
     """Search the node of least total cost first."""
     "*** YOUR CODE HERE ***"
-    # queue = util.PriorityQueueWithFunction(costFunction)
-    # return generalSearch(problem, queue, True)
 
     frontier = util.PriorityQueue()
     frontier.push(problem.getStartState(), 0)
     currRoad = util.PriorityQueue()
-
-    visited = []                                # List to check whether state has already been visited
-    tmp=[]                                 # Temp variable to get intermediate paths
-    path=[]                                     # List to store final sequence of directions 
-    currState = frontier.pop()
-    while not problem.isGoalState(currState):
-        if currState not in visited:
-            visited.append(currState)
-            successors = problem.expand(currState)
-            for child,direction,cost in successors:
-                tmp = path + [direction]
-                goCost = problem.getCostOfActionSequence(tmp)
-
-                if child not in visited:
-                    goCost = problem.getCostOfActionSequence(tmp)
-                    frontier.push(child, goCost)
-                    currRoad.push( tmp, goCost )
-        currState = frontier.pop()
-        path = currRoad.pop()    
-    return path
+    return generalSearch(problem, frontier, currRoad)
 
 def aStarSearch(problem, heuristic=nullHeuristic):
     """Search the node that has the lowest combined cost and heuristic first."""
@@ -173,31 +153,11 @@ def aStarSearch(problem, heuristic=nullHeuristic):
     frontier = util.PriorityQueue()
     frontier.push(problem.getStartState(), 0)
     currRoad = util.PriorityQueue()
-    
-    visited = []                            
-    path=[]                                 # the final road to goal
-    currState = frontier.pop()
-    while not problem.isGoalState(currState):
-        if currState not in visited:
-            visited.append(currState)
-            
-            successors = problem.expand(currState)
-            for child, action, cost in successors:
-                tmp = path+[action]
-                if child not in visited:
-                        goCost = problem.getCostOfActionSequence(tmp) + heuristic(child,problem)
-                        frontier.push(child, goCost)
-                        currRoad.push( tmp, goCost )
-        currState = frontier.pop()
-        path = currRoad.pop()
-    return path 
+    # return generalSearch(problem, frontier, currRoad)
 
-def generalSearch(problem, openTable, currRoad):
-    fringe, currRoad = openTable, currRoad  # fringe indicate that states to be fringe
-    currState = fringe.pop()
-    
+    currState = frontier.pop()
     visited = []                            
-    path=[]                                 # the final road to goal
+    path=[]                                 # final road to the goal
     # print("open table type :", flag)
     while not problem.isGoalState(currState):
         if currState not in visited:
@@ -206,8 +166,39 @@ def generalSearch(problem, openTable, currRoad):
             successors = problem.expand(currState)
             for child, action, cost in successors:
                 tmp = path+[action]
-                fringe.push(child)
-                currRoad.push( tmp )
+
+                if child not in visited:
+                    goCost = problem.getCostOfActionSequence(tmp) + heuristic(child,problem)
+                    frontier.push(child, goCost)
+                    currRoad.push( tmp, goCost )
+        currState = frontier.pop()
+        path = currRoad.pop()
+    return path 
+
+def generalSearch(problem, openTable, currRoad, heuristic=nullHeuristic, astar=False):
+    fringe = openTable  # states is fringe
+    currState = fringe.pop()
+
+    flag = type(currRoad)==util.PriorityQueue
+    
+    visited = []                            
+    path=[]                                 # final road to the goal
+    # print("open table type :", flag)
+    while not problem.isGoalState(currState):
+        if currState not in visited:
+            visited.append(currState)
+            
+            successors = problem.expand(currState)
+            for child, action, cost in successors:
+                tmp = path+[action]
+
+                if flag:
+                    goCost = problem.getCostOfActionSequence(tmp)
+                    fringe.push(child, goCost)
+                    currRoad.push( tmp, goCost )
+                else:
+                    fringe.push(child)
+                    currRoad.push( tmp )
         currState = fringe.pop()
         path = currRoad.pop()
     return path 
